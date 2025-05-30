@@ -97,6 +97,34 @@ userRouter.post("/create", userMiddleWare, async (req, res) => {
   }
 });
 
+userRouter.get("/my-urls", userMiddleWare, async (req, res) => {
+  const urls = await urlModel.find({
+    user: req.userID,
+  });
+  res.json({ urls });
+});
+
+userRouter.delete("/delete", userMiddleWare , async (req , res) => {
+  const {shortUrl} = req.body;
+  if(!shortUrl){
+    res.status(404).json({
+      msg:"URL does not exists"
+    })
+    return
+  }
+  const deleted = await urlModel.deleteOne({
+    shortUrl:shortUrl,
+    user:req.userID,
+  })
+  if (deleted.deletedCount === 0) {
+    res.status(404).json({ msg: "URL not found or not authorized" });
+    return
+  }
+  res.json({
+    msg:"Deleted"
+  })
+})
+
 userRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -113,9 +141,4 @@ userRouter.get("/:id", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-});
-
-userRouter.get("/my-urls", userMiddleWare, async (req, res) => {
-  const urls = await urlModel.find({ user: req.userID });
-  res.json({ urls });
 });
