@@ -103,14 +103,19 @@ userRouter.get("/:id", async (req, res) => {
     const url = await urlModel.findOne({
       shortUrl: id,
     });
-    if(url){
-      res.redirect(url.url)
-    }else{
+    if (url) {
+      res.redirect(url.url);
+    } else {
       res.status(404).json({
-        msg:"Not found"
-      })
+        msg: "Not found",
+      });
     }
   } catch (error) {
     console.log(error);
   }
+});
+
+userRouter.get("/my-urls", userMiddleWare, async (req, res) => {
+  const urls = await urlModel.find({ user: req.userID });
+  res.json({ urls });
 });
